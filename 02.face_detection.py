@@ -16,7 +16,7 @@ for (subdirs, dirs, files) in os.walk(datasets):
         for filename in os.listdir(subjectpath): 
             path = subjectpath + '/' + filename 
             lable = id
-            images.append(cv2.imread(path, 0)) 
+            images.append(cv2.imread(path, 0))
             lables.append(int(lable)) 
         id += 1
 (width, height) = (130, 100) 
