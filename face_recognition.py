@@ -1,4 +1,5 @@
 # captureing from webcam
+# Opens camera and saves detected faces in ./frames
 
 import cv2
 import numpy as np
@@ -7,7 +8,7 @@ import time
 
 
 #F acedetection
-haar_file = 'haarcascade_frontalface_default.xml'
+haar_file = './haar_cascade/haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(haar_file)
 
 webcam = cv2.VideoCapture(0)
@@ -60,7 +61,6 @@ else:
         if key == 27:
             break
             pass
-
 
     webcam.release()
     cv2.destroyAllWindows()

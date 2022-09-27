@@ -1,7 +1,7 @@
 # It helps in identifying the faces 
 import cv2, sys, numpy, os 
 size = 4
-haar_file = 'haarcascade_frontalface_default.xml'
+haar_file = 'haar_cascade/haarcascade_frontalface_default.xml'
 datasets = 'datasets'
 
 # Part 1: Create fisherRecognizer 
