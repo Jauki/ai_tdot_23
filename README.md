@@ -4,7 +4,8 @@ muss offline funktionieren
 
 
 - leute mit brille, mimik, farbe der tSHIRTS
-  - 
+  - Manuel
+  - Andreas
 
   
 
