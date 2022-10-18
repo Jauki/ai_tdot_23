@@ -6,8 +6,7 @@ import numpy as np
 import os
 import time
 
-
-#F acedetection
+# F acedetection
 haar_file = './haar_cascade/haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(haar_file)
 
@@ -32,28 +31,25 @@ else:
 
         req, frame = webcam.read()
 
-        time_stamp =f'{(time.time()) : .3f}'
+        time_stamp = f'{(time.time()) : .3f}'
         frame_name = f'./frames/frame_{time_stamp}{counter}.jpg'
 
         frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         frame_detected = face_cascade.detectMultiScale(frame, 1.3, 5)
         face_counter = 0
-        size = (width, height) = (160, 120)
+        size = (width, height) = (250, 250)
 
-        for(x,y, width, height) in frame_detected:
-            face = frame_gray[y:y+height, x:x+width]
-            face_resize = cv2.resize(face, size)
-
+        for (x, y, width, height) in frame_detected:
+            face = frame_gray[y:y + height, x:x + width]
             face_name = f'./frames/face_{time_stamp}-{face_counter}.jpg'
-            cv2.imwrite(frame_name, face_resize)
-            cv2.rectangle(frame_gray, (x,y), (x+width, y+height), (255, 0, 0), 0)
+            cv2.imwrite(frame_name, frame_gray)
+            cv2.rectangle(frame_gray, (x, y), (x + width, y + height), (255, 0, 0), 0)
             face_counter += 1
 
-
-        #print(f'{time_stamp}')
+        # print(f'{time_stamp}')
         # cv2.putText(frame, time_stamp, fontScale=1)
-        #masked_frame = background_mask.apply(frame)
+        # masked_frame = background_mask.apply(frame)
         counter += 1
         cv2.imshow('Webcam', frame_gray)
         # cv2.imshow('masked', masked_frame)
