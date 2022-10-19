@@ -1,15 +1,16 @@
 import cv2
 import numpy as np
 import os
-import pyscreenshot as ImageGrab
 import time
+from PIL import Image, ImageGrab
 
 haar_file = './haar_cascade/haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(haar_file)
+name = "gu"
 
 try:
     if not os.path.exists('frames'):
-        os.system('mkdir frames')
+        os.system(f'mkdir frames')
 except OSError:
     print(f'Error occured')
 
@@ -21,9 +22,6 @@ while True:
     grab_from_screen = ImageGrab.grab(bbox=(200, 0, 2880, 1800))
 
     frame = np.array(grab_from_screen)
-    time_stamp = f'{(time.time()) : .3f}'
-    frame_name = f'./frames/frame_{counter}.jpg'
-
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     frame_detected = face_cascade.detectMultiScale(frame, 1.3, 5)
@@ -32,7 +30,7 @@ while True:
 
     for (x, y, width, height) in frame_detected:
         print("foo!")
-        face_name = f'./frames/face_{time_stamp}-{face_counter}.jpg'
+        face_name = f'./frames/{name}/{name}_{time.time()}.jpg'
         cv2.imwrite(face_name, frame_gray)
         face_counter += 1
 
