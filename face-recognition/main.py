@@ -164,8 +164,8 @@ class FaceRecognitionModel:
 
     def save(self, storage_directory: os.path):
         # create model directory
-        date_time_str: str = datetime.datetime.now().strftime('%Y.%m.%d-%H:%M:%S')
-        model_directory: os.path = os.path.join(storage_directory, f'face-recognition-model-{date_time_str}')
+        # date_time_str: str = datetime.datetime.now().strftime('%Y.%m.%d-%H:%M:%S')
+        model_directory: os.path = os.path.join(storage_directory, f'face-recognition-model-last-state-state')
         os.mkdir(model_directory)
 
         # store keras model
@@ -200,7 +200,7 @@ def main():
     # model.train(train_data_directory, 3)
     # model.save(storage_path)
 
-    model_storage_path = os.path.join(storage_path, 'face-recognition-model-2022.10.18-10:32:04')
+    model_storage_path = os.path.join(storage_path, 'face-recognition-model-last-state')
     model.load(model_storage_path)
     model.test_webcam()
 
