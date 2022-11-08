@@ -1,20 +1,64 @@
-async-timeout==4.0.2
-Deprecated==1.2.13
-numpy==1.23.3
+absl-py==1.2.0
+astunparse==1.6.3
+Bottleneck @ file:///opt/conda/conda-bld/bottleneck_1657175564434/work
+cachetools==5.2.0
+certifi @ file:///croot/certifi_1665076670883/work/certifi
+cloudpickle==2.1.0
+cycler==0.11.0
+distlib==0.3.6
+filelock==3.8.0
+flatbuffers==1.12
+fonttools==4.37.1
+gast==0.4.0
+google-auth==2.11.0
+google-auth-oauthlib==0.4.6
+google-pasta==0.2.0
+grpcio==1.49.1
+grpcio-tools==1.49.1
+gym==0.25.2
+gym-notices==0.0.8
+h5py==3.7.0
+keras==2.9.0
+Keras-Applications==1.0.8
+Keras-Preprocessing==1.1.2
+keras-vggface==0.6
+kiwisolver==1.4.4
+libclang==14.0.6
+Markdown==3.4.1
+MarkupSafe==2.1.1
+matplotlib==3.5.3
+mkl-fft==1.3.1
+mkl-random @ file:///home/builder/ci_310/mkl_random_1641843545607/work
+mkl-service==2.4.0
+numexpr @ file:///opt/conda/conda-bld/numexpr_1656940300424/work
+numpy==1.23.2
 opencv-python==4.6.0.66
+opt-einsum==3.3.0
 packaging==21.3
-protobuf==4.21.6
-pycairo==1.21.0
-pyparsing==3.0.9
-PyQt3D==5.15.5
-PyQt5==5.15.7
-PyQt5-sip==12.11.0
-PyQtChart==5.15.6
-PyQtDataVisualization==5.15.5
-PyQtNetworkAuth==5.15.5
-PyQtPurchasing==5.15.5
-PyQtWebEngine==5.15.6
-redis==3.5.3
-redis-py-cluster==2.1.3
-TBB==0.2
+pandas==1.4.4
+Pillow==9.2.0
+platformdirs==2.5.2
+protobuf==4.21.7
+psycopg2 @ file:///opt/conda/conda-bld/psycopg2_1662147651466/work
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pygame==2.1.2
+pyparsing @ file:///opt/conda/conda-bld/pyparsing_1661452539315/work
+python-dateutil @ file:///tmp/build/80754af9/python-dateutil_1626374649649/work
+pytz @ file:///opt/conda/conda-bld/pytz_1654762638606/work
+PyYAML==6.0
+requests-oauthlib==1.3.1
+rsa==4.9
+scipy==1.9.1
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+tensorboard==2.9.1
+tensorboard-data-server==0.6.1
+tensorboard-plugin-wit==1.8.1
+tensorflow==2.9.1
+tensorflow-estimator==2.9.0
+tensorflow-io-gcs-filesystem==0.26.0
+termcolor==1.1.0
+typing_extensions==4.3.0
+virtualenv==20.16.6
+Werkzeug==2.2.2
 wrapt==1.14.1
