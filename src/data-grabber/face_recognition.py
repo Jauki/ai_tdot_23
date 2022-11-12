@@ -7,15 +7,15 @@ import os
 import time
 
 # F acedetection
-haar_file = '../haar_cascade/haarcascade_frontalface_default.xml'
+haar_file = 'haar_cascade/haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(haar_file)
 
 webcam = cv2.VideoCapture(0)
 
 ## create a folder for frames
 try:
-    if not os.path.exists('../frames'):
-        os.system('mkdir frames')
+    if not os.path.exists('frames'):
+        os.mkdir('frames')
 except OSError:
     print(f'Error occured')
 
@@ -32,7 +32,7 @@ else:
         req, frame = webcam.read()
 
         time_stamp = f'{(time.time()) : .3f}'
-        frame_name = f'./frames/frame_{time_stamp}{counter}.jpg'
+        frame_name = f'frames/frame_{time_stamp}{counter}.jpg'
 
         frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 

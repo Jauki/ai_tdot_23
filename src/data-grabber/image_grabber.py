@@ -4,13 +4,17 @@ import os
 import time
 from PIL import Image, ImageGrab
 
-haar_file = '../haar_cascade/haarcascade_frontalface_default.xml'
+haar_file = 'haar_cascade/haarcascade_frontalface_default.xml'
 face_cascade = cv2.CascadeClassifier(haar_file)
-name = "gu"
+frames_path: os.path = os.path.join(os.getcwd(), 'frames')
+name: str = 'GU'
+name_path = os.path.join(frames_path, name)
 
 try:
-    if not os.path.exists('../frames'):
-        os.system(f'mkdir frames')
+    if not os.path.exists(frames_path):
+        os.mkdir(frames_path)
+    if not os.path.exists(name_path):
+        os.mkdir(name_path)
 except OSError:
     print(f'Error occured')
 
@@ -30,8 +34,8 @@ while True:
 
     for (x, y, width, height) in frame_detected:
         print("foo!")
-        face_name = f'./frames/{name}/{name}_{time.time()}.jpg'
-        cv2.imwrite(face_name, frame_gray)
+        frame_path = os.path.join(name_path, f'{name}_{time.time()}.jpg')
+        cv2.imwrite(frame_path, frame_gray)
         face_counter += 1
 
     counter += 1

@@ -40,7 +40,7 @@ def process_video(video_url, name):
 def seek_faces(source, name):
     found = False
     ## targets the haarcascade file
-    haar_file = '../haar_cascade/haarcascade_frontalface_default.xml'
+    haar_file = 'haar_cascade/haarcascade_frontalface_default.xml'
     face_cascade = cv2.CascadeClassifier(haar_file)
     frame_detected = face_cascade.detectMultiScale(source, 1.3, 5)
 

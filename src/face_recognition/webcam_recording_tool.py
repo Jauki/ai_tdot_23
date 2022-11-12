@@ -17,7 +17,7 @@ if not os.path.exists(storage_directory):
     os.mkdir(storage_directory)
 
 # load haar cascade
-face_cascade_classifier_path: os.path = os.path.join('..', 'haar_cascade', 'haarcascade_frontalface_default.xml')
+face_cascade_classifier_path: os.path = os.path.join('../..', 'haar_cascade', 'haarcascade_frontalface_default.xml')
 face_cascade_classifier = cv2.CascadeClassifier(face_cascade_classifier_path)
 
 image_count: int = 0
