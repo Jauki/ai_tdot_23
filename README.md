@@ -1,4 +1,7 @@
 # Tag der offenen Tür
+
+‼️ NOTE: run the application with the `src` directory as the current working directory
+
 muss offline funktionieren
 
 
