@@ -20,7 +20,7 @@ def main():
         noseBridge = detector.getNoseBridgeOutline(face)
 
         index += 1
-        print(index)
+        print(f'{index} - {len(noseBridge)} | {len(noseBridge[0])}')
 
         if noseBridge is not None :
             cv2.imwrite(output + "\\" + fileName, noseBridge)

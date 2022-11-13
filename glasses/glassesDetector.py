@@ -1,14 +1,8 @@
-import copy
-from email.mime import image
 from enum import Enum
-import os
-from time import sleep
 import numpy as np
 import dlib
 import cv2
-import matplotlib.pyplot as plt
 from PIL import Image
-import statistics
 
 class Result(Enum):
     NO_FACE = 1
@@ -33,7 +27,7 @@ class GlassesDector:
 
     def __init__(self) -> None:
         self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+        self.predictor = dlib.shape_predictor('glasses/shape_predictor_68_face_landmarks.dat')
         pass
 
     def getNoseBridgeOutline(self, img):
@@ -123,20 +117,18 @@ class GlassesDector:
         #center strip
         edges_center = edges.T[(int(len(edges.T)/2))]
 
-        print(edges_center)
+        # print(edges_center)
 
-        ##WHAAAT schaut der einfach nur ob in der mittleren "spalte" eines bildes ein weißer pixel ist?
-        # glassesPresent = 255 in edges_center
-        glassesPresent = hasTwoSpaces(edges_center)
+        glassesPresent = 255 in edges_center
+        # glassesPresent = hasTwoSpaces(edges_center)
 
         cv2.line(edges, ((int(len(edges.T)/2)), 0), ((int(len(edges.T)/2)), len(edges)), (255, 0, 0), 1)
 
-        img_blur_big = cv2.resize(img_blur, (400, 400))
-        edges_big = cv2.resize(edges, (400, 400))
+        # img_blur_big = cv2.resize(img_blur, (400, 400))
+        # edges_big = cv2.resize(edges, (400, 400))
 
-        cv2.imshow("ai2", img_blur_big)
-        cv2.imshow("ai", edges_big)
-
+        # cv2.imshow("ai2", img_blur_big)
+        # cv2.imshow("ai", edges_big)
 
         for i in range(68):
             cv2.circle(img, (landmarks[i][0], landmarks[i][1]), radius=2, color=(0, 0, 255), thickness=-1)
@@ -161,9 +153,8 @@ def main():
 
         img_blur = cv2.GaussianBlur(np.array(frame),(3,3), sigmaX=0, sigmaY=0)
         edges = cv2.Canny(image =img_blur, threshold1=100, threshold2=200)
-        cv2.imshow("canny", edges)
-
-        cv2.imshow("stff", edges.T)
+        # cv2.imshow("canny", edges)
+        # cv2.imshow("stff", edges.T)
 
         result = detector.detectGlasses(frame)
 

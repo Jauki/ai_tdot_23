@@ -4,7 +4,7 @@ from glassesDetector import GlassesDector
 
 def main():
 
-    outputFolder = "D:\\pavica"
+    outputFolder = "D:\\new"
     glassesFolder = f'{outputFolder}\\glasses'
     noGlassesFolder = f'{outputFolder}\\no_glasses'
 

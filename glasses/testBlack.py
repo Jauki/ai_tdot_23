@@ -28,8 +28,8 @@ def main():
             blackCounter += 1
         else:
             if(hasGlasses):
-                cv2.imshow("asdf", image)
-                cv2.waitKey(0)
+                # cv2.imshow("asdf", image)
+                # cv2.waitKey(0)
                 nonBlackWrongGuesses += 1
 
     pass
