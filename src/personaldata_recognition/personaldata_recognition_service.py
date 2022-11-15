@@ -35,8 +35,8 @@ class PersonalDataRecognitionService:
         features = features[0].reshape(1, self.__IMAGE_SIZE, self.__IMAGE_SIZE, 1)
         
         model_input = features
-        predicted_gender = self.__GENDER_DICT[round(self.gender_model.predict(model_input)[0][0][0])]
-        predicted_age = round(self.age_model.predict(model_input)[1][0][0])
+        predicted_gender = self.__GENDER_DICT[round(self.gender_model.predict(model_input, verbose=0)[0][0][0])]
+        predicted_age = round(self.age_model.predict(model_input, verbose=0)[1][0][0])
         
         return PersonalDataRecognitionResult(predicted_age, predicted_gender)
 

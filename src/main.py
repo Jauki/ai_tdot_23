@@ -49,7 +49,7 @@ class Main:
             yield frame
 
             # check for exit-key
-            key = cv2.waitKey(50) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             if key == 0x1B:  # exit with ESC
                 finished = True
 
@@ -73,7 +73,7 @@ class Main:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, stroke)
 
                 self.__execute_face_recognition_service(frame, region_of_interest, x, y)
-                self.__execute_personaldata_recognition_service(frame, region_of_interest, x, y)
+                self.__execute_personaldata_recognition_service(frame, region_of_interest, x, y, h)
                 # TODO: sends ROI to other services
 
                 yield frame
@@ -90,7 +90,7 @@ class Main:
         cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
         cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
 
-    def __execute_personaldata_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
+    def __execute_personaldata_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int, height: int):
         # use face-recognition-service
         result: PersonalDataRecognitionResult = self.__personaldata_recognition_service.predict_frame(region_of_interest)
 
@@ -98,7 +98,7 @@ class Main:
         font = cv2.FONT_HERSHEY_SIMPLEX
         color = (255, 255, 255)  # color in BGR
         stroke = 2
-        cv2.putText(frame, f'{result.gender}, {result.age} ', (x, y + 40), font, 1, color, stroke, cv2.LINE_AA)
+        cv2.putText(frame, f'{result.gender}, {result.age} ', (x, y + height + 40), font, 1, color, stroke, cv2.LINE_AA)
 
 
 if __name__ == "__main__":

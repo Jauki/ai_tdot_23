@@ -12,12 +12,12 @@ def main():
 
     # model.preprocess_training_data(train_data_directory)
 
-    # model.train(train_data_directory, 3)
-    # model.save(storage_path)
+    model.train(train_data_directory, 3)
+    model.save(storage_path)
 
-    model_storage_path = os.path.join(storage_path, 'face-recognition-model-last-state')
-    model.load(model_storage_path)
-    model.test_webcam()
+    # model_storage_path = os.path.join(storage_path, 'face-recognition-model-last-state')
+    # model.load(model_storage_path)
+    # model.test_webcam()
 
 
 if __name__ == "__main__":

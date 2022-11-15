@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow.keras as keras
 import keras_vggface
 import datetime
+from matplotlib import pyplot
 
 
 class FaceRecognitionResult:
@@ -94,7 +95,19 @@ class FaceRecognitionService:
 
     def train(self, train_data_directory: os.path, epochs: int) -> None:
         image_data_generator = keras.preprocessing.image.ImageDataGenerator(
-            preprocessing_function=keras.applications.mobilenet.preprocess_input)
+            preprocessing_function=keras.applications.mobilenet.preprocess_input,
+
+            rotation_range=5,  # rotates the images
+            # NOTE: (but only 5° because highly rotated faces are not detected by the haar-cascade-classifier anyway)
+            fill_mode='nearest',  # account for the empty areas due to rotation
+
+            horizontal_flip=True,
+            # NOTE: vertical_flip does not make much sense (face upside down)
+
+            brightness_range=[0.5, 1.5],
+
+            zoom_range=0.2,
+        )
 
         # uses the subdirectory-names as class-names
         train_data_generator = image_data_generator.flow_from_directory(
