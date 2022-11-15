@@ -3,12 +3,16 @@ import cv2
 import os
 import numpy as np
 from face_recognition.face_recognition_service import FaceRecognitionService, FaceRecognitionResult
+from personaldata_recognition.personaldata_recognition_service import PersonalDataRecognitionService, PersonalDataRecognitionResult
 
 CWD: os.path = os.getcwd()
 FACE_CASCADE_CLASSIFIER_PATH: os.path = os.path.join(CWD, 'haar_cascade', 'haarcascade_frontalface_default.xml')
 FACE_RECOGNITION_SERVICE_MODEL_PATH: os.path = os.path.join(CWD, 'face_recognition', 'model-storage',
                                                             'face-recognition-model-last-state')
-
+AGE_DETECTION_MODEL_PATH: os.path = os.path.join(CWD, 'personaldata_recognition', 'model-storage',
+                                                            'age_model.h5')
+GENDER_DETECTION_MODEL_PATH: os.path = os.path.join(CWD, 'personaldata_recognition', 'model-storage',
+                                                            'gender_model.h5')
 
 class Main:
     def __init__(self, face_cascade_classifier_path: os.path = FACE_CASCADE_CLASSIFIER_PATH):
@@ -19,6 +23,8 @@ class Main:
         # face recognition service
         self.__face_recognition_service = FaceRecognitionService(face_cascade_classifier_path)
         self.__face_recognition_service.load(FACE_RECOGNITION_SERVICE_MODEL_PATH)
+        self.__personaldata_recognition_service = PersonalDataRecognitionService()
+        self.__personaldata_recognition_service.load(AGE_DETECTION_MODEL_PATH, GENDER_DETECTION_MODEL_PATH)
 
     def run(self):
         frame_generator: Generator[np.ndarray, None, None] = self.__record_webcam()
@@ -67,7 +73,7 @@ class Main:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, stroke)
 
                 self.__execute_face_recognition_service(frame, region_of_interest, x, y)
-
+                self.__execute_personaldata_recognition_service(frame, region_of_interest, x, y)
                 # TODO: sends ROI to other services
 
                 yield frame
@@ -83,6 +89,16 @@ class Main:
         probability_str: str = '%.0f' % (result.certainty * 100)
         cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
         cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
+
+    def __execute_personaldata_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
+        # use face-recognition-service
+        result: PersonalDataRecognitionResult = self.__personaldata_recognition_service.predict_frame(region_of_interest)
+
+        # draw face-recognition-service result
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        color = (255, 255, 255)  # color in BGR
+        stroke = 2
+        cv2.putText(frame, f'{result.gender}, {result.age} ', (x, y + 40), font, 1, color, stroke, cv2.LINE_AA)
 
 
 if __name__ == "__main__":
