@@ -2,9 +2,11 @@ from typing import Generator
 import cv2
 import os
 import numpy as np
-from face_recognition.face_recognition_service import FaceRecognitionService, FaceRecognitionResult
+# from face_recognition.face_recognition_service import FaceRecognitionService, FaceRecognitionResult
 from personaldata_recognition.personaldata_recognition_service import PersonalDataRecognitionService, PersonalDataRecognitionResult
+from glasses_recognition.glasses_recognition_service import GlassesRecognitionService, GlassessRecognitionResult, Result as GlassesResult
 
+os.chdir("C:\\Users\\AndiK\\OneDrive\\Dokumente\\HTL 5. Jahr\\AI\\TagDerOffenenTuer\\src")
 CWD: os.path = os.getcwd()
 FACE_CASCADE_CLASSIFIER_PATH: os.path = os.path.join(CWD, 'haar_cascade', 'haarcascade_frontalface_default.xml')
 FACE_RECOGNITION_SERVICE_MODEL_PATH: os.path = os.path.join(CWD, 'face_recognition', 'model-storage',
@@ -13,6 +15,7 @@ AGE_DETECTION_MODEL_PATH: os.path = os.path.join(CWD, 'personaldata_recognition'
                                                             'age_model.h5')
 GENDER_DETECTION_MODEL_PATH: os.path = os.path.join(CWD, 'personaldata_recognition', 'model-storage',
                                                             'gender_model.h5')
+GLASSESS_CLASSIFIER_PATH: os.path = os.path.join(CWD, 'haar_cascade', 'shape_predictor_68_face_landmarks.dat')
 
 class Main:
     def __init__(self, face_cascade_classifier_path: os.path = FACE_CASCADE_CLASSIFIER_PATH):
@@ -21,10 +24,12 @@ class Main:
 
     def __init_services(self, face_cascade_classifier_path: os.path):
         # face recognition service
-        self.__face_recognition_service = FaceRecognitionService(face_cascade_classifier_path)
-        self.__face_recognition_service.load(FACE_RECOGNITION_SERVICE_MODEL_PATH)
+        # self.__face_recognition_service = FaceRecognitionService(face_cascade_classifier_path)
+        # self.__face_recognition_service.load(FACE_RECOGNITION_SERVICE_MODEL_PATH)
         self.__personaldata_recognition_service = PersonalDataRecognitionService()
         self.__personaldata_recognition_service.load(AGE_DETECTION_MODEL_PATH, GENDER_DETECTION_MODEL_PATH)
+
+        self.__glasses_recognition_service = GlassesRecognitionService(GLASSESS_CLASSIFIER_PATH)
 
     def run(self):
         frame_generator: Generator[np.ndarray, None, None] = self.__record_webcam()
@@ -72,23 +77,25 @@ class Main:
                 stroke = 2
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, stroke)
 
-                self.__execute_face_recognition_service(frame, region_of_interest, x, y)
+                # self.__execute_face_recognition_service(frame, region_of_interest, x, y)
                 self.__execute_personaldata_recognition_service(frame, region_of_interest, x, y)
                 # TODO: sends ROI to other services
 
+                self.__execute_glasses_recognition_service(frame, region_of_interest, x, y)
+
                 yield frame
 
-    def __execute_face_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
-        # use face-recognition-service
-        result: FaceRecognitionResult = self.__face_recognition_service.predict_frame(region_of_interest)
+    # def __execute_face_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
+    #     # use face-recognition-service
+    #     result: FaceRecognitionResult = self.__face_recognition_service.predict_frame(region_of_interest)
 
-        # draw face-recognition-service result
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        color = (0, int(result.certainty * 255), int((1 - result.certainty) * 255))  # color in BGR
-        stroke = 2
-        probability_str: str = '%.0f' % (result.certainty * 100)
-        cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
-        cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
+    #     # draw face-recognition-service result
+    #     font = cv2.FONT_HERSHEY_SIMPLEX
+    #     color = (0, int(result.certainty * 255), int((1 - result.certainty) * 255))  # color in BGR
+    #     stroke = 2
+    #     probability_str: str = '%.0f' % (result.certainty * 100)
+    #     cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
+    #     cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
 
     def __execute_personaldata_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
         # use face-recognition-service
@@ -99,6 +106,32 @@ class Main:
         color = (255, 255, 255)  # color in BGR
         stroke = 2
         cv2.putText(frame, f'{result.gender}, {result.age} ', (x, y + 40), font, 1, color, stroke, cv2.LINE_AA)
+
+    def __execute_glasses_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
+        # use face-recognition-service
+        result: GlassessRecognitionResult = self.__glasses_recognition_service.detectGlasses(region_of_interest)
+
+        # draw face-recognition-service result
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        color = (255, 255, 255)  # color in BGR
+        stroke = 2
+
+        if result.result == GlassesResult.NO_FACE:
+            cv2.putText(frame, 
+                "no face detected :(",
+                (x, y - 20), font, 1, color, stroke, cv2.LINE_AA)
+            return
+
+        cv2.putText(frame, 
+            "Glasses" if result.result == GlassesResult.HAS_GLASSES else "no glasses",
+             (x, y - 20), font, 1, color, stroke, cv2.LINE_AA)
+
+        for i in range(68):
+            xPos = result.landmarks[i][0] + x
+            yPos = result.landmarks[i][1] + y
+            cv2.circle(frame, (xPos, yPos), radius=2, color=(0, 0, 255), thickness=-1)
+            cv2.putText(frame, str(i), (xPos, yPos), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 0, 0), 1, cv2.LINE_AA)
+
 
 
 if __name__ == "__main__":
