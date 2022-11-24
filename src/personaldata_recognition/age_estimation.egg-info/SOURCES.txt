@@ -1,0 +1,13 @@
+README.md
+setup.py
+age_estimation.egg-info/PKG-INFO
+age_estimation.egg-info/SOURCES.txt
+age_estimation.egg-info/dependency_links.txt
+age_estimation.egg-info/not-zip-safe
+age_estimation.egg-info/requires.txt
+age_estimation.egg-info/top_level.txt
+ibug/age_estimation/__init__.py
+ibug/age_estimation/age_estimator.py
+ibug/age_estimation/dex.py
+ibug/age_estimation/fpage.py
+ibug/age_estimation/module.py

@@ -3,15 +3,14 @@ import cv2
 import os
 import numpy as np
 from face_recognition.face_recognition_service import FaceRecognitionService, FaceRecognitionResult
-from personaldata_recognition.personaldata_recognition_service import PersonalDataRecognitionService, PersonalDataRecognitionResult
+from personaldata_recognition.gender_estimation_service import GenderEstimationService, GenderEstimationResult
+from personaldata_recognition.age_estimation_service import AgeEstimationService, AgeEstimationResult
 from glasses_recognition.glasses_recognition_service import GlassesRecognitionService, GlassessRecognitionResult, Result as GlassesResult
 
 CWD: os.path = os.getcwd()
 FACE_CASCADE_CLASSIFIER_PATH: os.path = os.path.join(CWD, 'haar_cascade', 'haarcascade_frontalface_default.xml')
 FACE_RECOGNITION_SERVICE_MODEL_PATH: os.path = os.path.join(CWD, 'face_recognition', 'model-storage',
                                                             'face-recognition-model-last-state')
-AGE_DETECTION_MODEL_PATH: os.path = os.path.join(CWD, 'personaldata_recognition', 'model-storage',
-                                                            'age_model.h5')
 GENDER_DETECTION_MODEL_PATH: os.path = os.path.join(CWD, 'personaldata_recognition', 'model-storage',
                                                             'gender_model.h5')
 GLASSESS_CLASSIFIER_PATH: os.path = os.path.join(CWD, 'haar_cascade', 'shape_predictor_68_face_landmarks.dat')
@@ -22,12 +21,12 @@ class Main:
         self.__init_services(face_cascade_classifier_path)
 
     def __init_services(self, face_cascade_classifier_path: os.path):
-        # face recognition service
         self.__face_recognition_service = FaceRecognitionService(face_cascade_classifier_path)
         self.__face_recognition_service.load(FACE_RECOGNITION_SERVICE_MODEL_PATH)
-        self.__personaldata_recognition_service = PersonalDataRecognitionService()
-        self.__personaldata_recognition_service.load(AGE_DETECTION_MODEL_PATH, GENDER_DETECTION_MODEL_PATH)
-
+        self.__gender_estimation_service = GenderEstimationService()
+        self.__gender_estimation_service.load(GENDER_DETECTION_MODEL_PATH)
+        self.__age_estimation_service = AgeEstimationService()
+        self.__age_estimation_service.load()
         self.__glasses_recognition_service = GlassesRecognitionService(GLASSESS_CLASSIFIER_PATH)
 
     def run(self):
@@ -77,9 +76,8 @@ class Main:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, stroke)
 
                 self.__execute_face_recognition_service(frame, region_of_interest, x, y)
-                self.__execute_personaldata_recognition_service(frame, region_of_interest, x, y, h)
-                # TODO: sends ROI to other services
-
+                self.__execute_gender_estimation_service(frame, region_of_interest, x, y)
+                self.__execute_age_estimation_service(frame, x, y)
                 self.__execute_glasses_recognition_service(frame, region_of_interest, x, y)
 
                 yield frame
@@ -96,16 +94,25 @@ class Main:
         cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
         cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
 
-    def __execute_personaldata_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int,
-                                                   y: int, height: int):
+    def __execute_gender_estimation_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
         # use face-recognition-service
-        result: PersonalDataRecognitionResult = self.__personaldata_recognition_service.predict_frame(region_of_interest)
+        result: GenderEstimationResult = self.__gender_estimation_service.predict_frame(region_of_interest)
 
         # draw face-recognition-service result
         font = cv2.FONT_HERSHEY_SIMPLEX
         color = (255, 255, 255)  # color in BGR
         stroke = 2
-        cv2.putText(frame, f'{result.gender}, {result.age} ', (x, y + 40), font, 1, color, stroke, cv2.LINE_AA)
+        cv2.putText(frame, f'GENDER: {result.gender}', (x, y + 40), font, 1, color, stroke, cv2.LINE_AA)
+        
+    def __execute_age_estimation_service(self, frame: np.ndarray, x: int, y: int):
+        # use face-recognition-service
+        results: AgeEstimationResult = self.__age_estimation_service.predict_frame(frame)
+
+        # draw face-recognition-service result
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        color = (255, 255, 255)  # color in BGR
+        stroke = 2
+        cv2.putText(frame, f'AGE: {results[0].age}', (x, y + 100), font, 1, color, stroke, cv2.LINE_AA)
 
     def __execute_glasses_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
         # use face-recognition-service
