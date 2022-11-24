@@ -2,7 +2,7 @@ from typing import Generator
 import cv2
 import os
 import numpy as np
-# from face_recognition.face_recognition_service import FaceRecognitionService, FaceRecognitionResult
+from face_recognition.face_recognition_service import FaceRecognitionService, FaceRecognitionResult
 from personaldata_recognition.personaldata_recognition_service import PersonalDataRecognitionService, PersonalDataRecognitionResult
 from glasses_recognition.glasses_recognition_service import GlassesRecognitionService, GlassessRecognitionResult, Result as GlassesResult
 
@@ -24,8 +24,8 @@ class Main:
 
     def __init_services(self, face_cascade_classifier_path: os.path):
         # face recognition service
-        # self.__face_recognition_service = FaceRecognitionService(face_cascade_classifier_path)
-        # self.__face_recognition_service.load(FACE_RECOGNITION_SERVICE_MODEL_PATH)
+        self.__face_recognition_service = FaceRecognitionService(face_cascade_classifier_path)
+        self.__face_recognition_service.load(FACE_RECOGNITION_SERVICE_MODEL_PATH)
         self.__personaldata_recognition_service = PersonalDataRecognitionService()
         self.__personaldata_recognition_service.load(AGE_DETECTION_MODEL_PATH, GENDER_DETECTION_MODEL_PATH)
 
@@ -77,7 +77,7 @@ class Main:
                 stroke = 2
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, stroke)
 
-                # self.__execute_face_recognition_service(frame, region_of_interest, x, y)
+                self.__execute_face_recognition_service(frame, region_of_interest, x, y)
                 self.__execute_personaldata_recognition_service(frame, region_of_interest, x, y)
                 # TODO: sends ROI to other services
 
@@ -85,17 +85,17 @@ class Main:
 
                 yield frame
 
-    # def __execute_face_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
-    #     # use face-recognition-service
-    #     result: FaceRecognitionResult = self.__face_recognition_service.predict_frame(region_of_interest)
+    def __execute_face_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
+        # use face-recognition-service
+        result: FaceRecognitionResult = self.__face_recognition_service.predict_frame(region_of_interest)
 
-    #     # draw face-recognition-service result
-    #     font = cv2.FONT_HERSHEY_SIMPLEX
-    #     color = (0, int(result.certainty * 255), int((1 - result.certainty) * 255))  # color in BGR
-    #     stroke = 2
-    #     probability_str: str = '%.0f' % (result.certainty * 100)
-    #     cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
-    #     cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
+        # draw face-recognition-service result
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        color = (0, int(result.certainty * 255), int((1 - result.certainty) * 255))  # color in BGR
+        stroke = 2
+        probability_str: str = '%.0f' % (result.certainty * 100)
+        cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
+        cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
 
     def __execute_personaldata_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
         # use face-recognition-service
