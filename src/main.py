@@ -91,8 +91,7 @@ class Main:
         color = (0, int(result.certainty * 255), int((1 - result.certainty) * 255))  # color in BGR
         stroke = 2
         probability_str: str = '%.0f' % (result.certainty * 100)
-        cv2.putText(frame, f'{result.label}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
-        cv2.putText(frame, f'{probability_str}%', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
+        cv2.putText(frame, f'{result.label}, {probability_str}%', (x, y - 70), font, 1, color, stroke, cv2.LINE_AA)
 
     def __execute_gender_estimation_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
         # use face-recognition-service
@@ -102,7 +101,7 @@ class Main:
         font = cv2.FONT_HERSHEY_SIMPLEX
         color = (255, 255, 255)  # color in BGR
         stroke = 2
-        cv2.putText(frame, f'GENDER: {result.gender}', (x, y + 40), font, 1, color, stroke, cv2.LINE_AA)
+        cv2.putText(frame, f'GENDER: {result.gender}', (x, y - 40), font, 1, color, stroke, cv2.LINE_AA)
         
     def __execute_age_estimation_service(self, frame: np.ndarray, x: int, y: int):
         # use face-recognition-service
@@ -112,7 +111,7 @@ class Main:
         font = cv2.FONT_HERSHEY_SIMPLEX
         color = (255, 255, 255)  # color in BGR
         stroke = 2
-        cv2.putText(frame, f'AGE: {results[0].age}', (x, y + 100), font, 1, color, stroke, cv2.LINE_AA)
+        cv2.putText(frame, f'AGE: {results[0].age}', (x, y - 10), font, 1, color, stroke, cv2.LINE_AA)
 
     def __execute_glasses_recognition_service(self, frame: np.ndarray, region_of_interest: np.ndarray, x: int, y: int):
         # use face-recognition-service
@@ -128,7 +127,7 @@ class Main:
 
         cv2.putText(frame, 
             "Glasses" if result.result == GlassesResult.HAS_GLASSES else "no glasses",
-             (x, y - 20), font, 1, color, stroke, cv2.LINE_AA)
+             (x, y + 30), font, 1, color, stroke, cv2.LINE_AA)
 
         for i in range(68):
             xPos = result.landmarks[i][0] + x
