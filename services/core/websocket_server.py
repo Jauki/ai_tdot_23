@@ -15,10 +15,11 @@ from config import cascade_config
 import abc
 from typing import *
 from service_manager import ServiceState
-from service_results import FaceRecognitionResult
+from service_results import FaceRecognitionResult, GlassesRecognitionResult, GlassesRecognitionResultType
 
 face_cascade_classifier = cv2.CascadeClassifier(cascade_config.FACE_CASCADE_CLASSIFIER_PATH)
 face_recognition_service_state: ServiceState = ServiceState()
+glasses_recognition_service_state: ServiceState = ServiceState()
 
 
 class Channel(abc.ABC):
@@ -107,6 +108,43 @@ face_recognition_request_channel: FaceRecognitionRequestChannel = FaceRecognitio
 face_recognition_result_channel: FaceRecognitionResultChannel = FaceRecognitionResultChannel()
 
 
+class GlassesRecognitionRequestChannel(Channel):
+    def __init__(self):
+        super().__init__(self.__class__.__name__)
+        self._message_handlers['subscribe'] = self.__handle_subscribe
+
+    @property
+    def name(self) -> str:
+        return 'glasses_recognition_request'
+
+    def __handle_subscribe(self, client: ws.WebSocketServerProtocol, message: dict[str, any]):
+        glasses_recognition_service_state.occupied = False
+
+        super()._handle_subscribe(client, message)
+
+
+class GlassesRecognitionResultChannel(Channel):
+    def __init__(self):
+        super().__init__(self.__class__.__name__)
+        self._message_handlers['publish'] = self.__handle_publish
+
+    @property
+    def name(self) -> str:
+        return 'glasses_recognition_result'
+
+    def __handle_publish(self, client: ws.WebSocketServerProtocol, message: dict[str, any]):
+        result: GlassesRecognitionResult = GlassesRecognitionResult.from_dto(message['payload']['result'])
+
+        glasses_recognition_service_state.result = result
+        glasses_recognition_service_state.occupied = False
+
+        super()._handle_publish(client, message)
+
+
+glasses_recognition_request_channel: GlassesRecognitionRequestChannel = GlassesRecognitionRequestChannel()
+glasses_recognition_result_channel: GlassesRecognitionResultChannel = GlassesRecognitionResultChannel()
+
+
 class VideoStreamChannel(Channel):
     def __init__(self):
         super().__init__(self.__class__.__name__)
@@ -147,12 +185,29 @@ class VideoStreamChannel(Channel):
                 payload: dict[str, any] = {
                     'frame': base64_roi,
                 }
-                face_recognition_request_channel.publish(payload)
+                face_recognition_request_channel.publish(payload)  # send ROI to face recognition service
+
+            if not glasses_recognition_service_state.occupied:
+                glasses_recognition_service_state.occupied = True
+                payload: dict[str, any] = {
+                    'frame': base64_roi,
+                }
+                glasses_recognition_request_channel.publish(payload)
 
             # highlight ROI
             color = (0, 255, 0)  # color in BGR
             stroke = 2
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, stroke)
+
+            # add landmarks to face
+            result: GlassesRecognitionResult = glasses_recognition_service_state.result
+            if result and result.result != GlassesRecognitionResultType.NO_FACE:
+                for i in range(68):
+                    landmark_x = result.landmarks[i][0] + x
+                    landmark_y = result.landmarks[i][1] + y
+                    cv2.circle(frame, (landmark_x, landmark_y), radius=2, color=(0, 0, 255), thickness=-1)
+                    # cv2.putText(frame, str(i), (landmark_x, landmark_y), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 0, 0), 1,
+                    #             cv2.LINE_AA)
 
             # convert frame to base64
             _, buffer = cv2.imencode('.png', frame)
@@ -177,6 +232,8 @@ class WebSocketServer:
             video_stream_channel.name: video_stream_channel,
             face_recognition_request_channel.name: face_recognition_request_channel,
             face_recognition_result_channel.name: face_recognition_result_channel,
+            glasses_recognition_request_channel.name: glasses_recognition_request_channel,
+            glasses_recognition_result_channel.name: glasses_recognition_result_channel,
         }
 
     async def __handle_client(self, client: ws.WebSocketServerProtocol):

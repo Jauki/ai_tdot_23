@@ -1,5 +1,6 @@
 let videoStreamDisplay = null;
 let faceRecognitionResult = null;
+let glassRecognitionResult = null;
 let websocket;
 
 function connect() {
@@ -22,8 +23,11 @@ function receive(message) {
             break;
         }
         case "face_recognition_result": {
-            console.log(`received message: ${JSON.stringify(message)}`)
             handle_face_recognition(message);
+            break;
+        }
+        case "glasses_recognition_result": {
+            handle_glasses_recognition(message);
             break;
         }
     }
@@ -33,6 +37,11 @@ function handle_face_recognition(message) {
     let result = message.payload.result;
     let certainty = parseFloat(result.certainty) * 100;
     faceRecognitionResult.textContent = `${result.label} (certainty: ${parseFloat(certainty).toFixed(2)} %)`;
+}
+
+function handle_glasses_recognition(message) {
+    let result = message.payload.result;
+    glassRecognitionResult.textContent = `${result.result}`;
 }
 
 function handle_video_stream(message) {
@@ -45,6 +54,7 @@ function initWebsocket() {
         console.log('connected!');
         subscribe("video_stream");
         subscribe("face_recognition_result");
+        subscribe("glasses_recognition_result");
     }
     websocket.addEventListener("message", (message) => {
         receive(JSON.parse(message.data));
@@ -54,5 +64,6 @@ function initWebsocket() {
 window.addEventListener("DOMContentLoaded", () => {
     videoStreamDisplay = document.getElementById("videoStreamDisplay");
     faceRecognitionResult = document.getElementById("faceRecognitionResult");
+    glassRecognitionResult = document.getElementById("glassRecognitionResult");
     initWebsocket();
 });
