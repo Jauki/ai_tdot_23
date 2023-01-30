@@ -36,6 +36,10 @@ class Channel(abc.ABC):
         self._subscribers.remove(client)
 
     def _handle_publish(self, client: ws.WebSocketServerProtocol, message: dict[str, any]):
+        message: dict[str, any] = {
+            'channel': message['channel'],
+            'payload': message['payload'],
+        }
         ws.broadcast(self._subscribers, json.dumps(message))
 
 
