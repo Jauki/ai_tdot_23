@@ -39,3 +39,19 @@ class GlassesRecognitionResult:
             result=GlassesRecognitionResultType[dto['result']],
             landmarks=np.array(dto['landmarks']),
         )
+
+
+class GenderEstimationResult:
+    def __init__(self, gender: str):
+        self.gender = gender
+
+    def to_dto(self) -> dict[str, any]:
+        return {
+            'gender': self.gender,
+        }
+
+    @staticmethod
+    def from_dto(dto: dict[str, any]) -> GenderEstimationResult:
+        return GenderEstimationResult(
+            gender=dto['gender'],
+        )

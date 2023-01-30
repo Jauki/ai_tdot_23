@@ -15,11 +15,13 @@ from config import cascade_config
 import abc
 from typing import *
 from service_manager import ServiceState
-from service_results import FaceRecognitionResult, GlassesRecognitionResult, GlassesRecognitionResultType
+from service_results import FaceRecognitionResult, GlassesRecognitionResult, GlassesRecognitionResultType, \
+    GenderEstimationResult
 
 face_cascade_classifier = cv2.CascadeClassifier(cascade_config.FACE_CASCADE_CLASSIFIER_PATH)
 face_recognition_service_state: ServiceState = ServiceState()
 glasses_recognition_service_state: ServiceState = ServiceState()
+gender_estimation_service_state: ServiceState = ServiceState()
 
 
 class Channel(abc.ABC):
@@ -145,6 +147,43 @@ glasses_recognition_request_channel: GlassesRecognitionRequestChannel = GlassesR
 glasses_recognition_result_channel: GlassesRecognitionResultChannel = GlassesRecognitionResultChannel()
 
 
+class GenderEstimationRequestChannel(Channel):
+    def __init__(self):
+        super().__init__(self.__class__.__name__)
+        self._message_handlers['subscribe'] = self.__handle_subscribe
+
+    @property
+    def name(self) -> str:
+        return 'gender_estimation_request'
+
+    def __handle_subscribe(self, client: ws.WebSocketServerProtocol, message: dict[str, any]):
+        gender_estimation_service_state.occupied = False
+
+        super()._handle_subscribe(client, message)
+
+
+class GenderEstimationResultChannel(Channel):
+    def __init__(self):
+        super().__init__(self.__class__.__name__)
+        self._message_handlers['publish'] = self.__handle_publish
+
+    @property
+    def name(self) -> str:
+        return 'gender_estimation_result'
+
+    def __handle_publish(self, client: ws.WebSocketServerProtocol, message: dict[str, any]):
+        result: GenderEstimationResult = GenderEstimationResult.from_dto(message['payload']['result'])
+
+        gender_estimation_service_state.result = result
+        gender_estimation_service_state.occupied = False
+
+        super()._handle_publish(client, message)
+
+
+gender_estimation_request_channel: GenderEstimationRequestChannel = GenderEstimationRequestChannel()
+gender_estimation_result_channel: GenderEstimationResultChannel = GenderEstimationResultChannel()
+
+
 class VideoStreamChannel(Channel):
     def __init__(self):
         super().__init__(self.__class__.__name__)
@@ -194,6 +233,13 @@ class VideoStreamChannel(Channel):
                 }
                 glasses_recognition_request_channel.publish(payload)
 
+            if not gender_estimation_service_state.occupied:
+                gender_estimation_service_state.occupied = True
+                payload: dict[str, any] = {
+                    'frame': base64_roi,
+                }
+                gender_estimation_request_channel.publish(payload)
+
             # highlight ROI
             color = (0, 255, 0)  # color in BGR
             stroke = 2
@@ -234,6 +280,8 @@ class WebSocketServer:
             face_recognition_result_channel.name: face_recognition_result_channel,
             glasses_recognition_request_channel.name: glasses_recognition_request_channel,
             glasses_recognition_result_channel.name: glasses_recognition_result_channel,
+            gender_estimation_request_channel.name: gender_estimation_request_channel,
+            gender_estimation_result_channel.name: gender_estimation_result_channel,
         }
 
     async def __handle_client(self, client: ws.WebSocketServerProtocol):

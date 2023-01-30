@@ -1,6 +1,7 @@
 let videoStreamDisplay = null;
 let faceRecognitionResult = null;
 let glassRecognitionResult = null;
+let genderEstimationResult = null;
 let websocket;
 
 function connect() {
@@ -30,6 +31,10 @@ function receive(message) {
             handle_glasses_recognition(message);
             break;
         }
+        case "gender_estimation_result": {
+            handle_gender_estimation(message);
+            break;
+        }
     }
 }
 
@@ -44,6 +49,11 @@ function handle_glasses_recognition(message) {
     glassRecognitionResult.textContent = `${result.result}`;
 }
 
+function handle_gender_estimation(message) {
+    let result = message.payload.result;
+    genderEstimationResult.textContent = `${result.gender}`;
+}
+
 function handle_video_stream(message) {
     videoStreamDisplay.src = `data:image/png;base64,${message.payload.frame}`;
 }
@@ -55,6 +65,7 @@ function initWebsocket() {
         subscribe("video_stream");
         subscribe("face_recognition_result");
         subscribe("glasses_recognition_result");
+        subscribe("gender_estimation_result");
     }
     websocket.addEventListener("message", (message) => {
         receive(JSON.parse(message.data));
@@ -65,5 +76,6 @@ window.addEventListener("DOMContentLoaded", () => {
     videoStreamDisplay = document.getElementById("videoStreamDisplay");
     faceRecognitionResult = document.getElementById("faceRecognitionResult");
     glassRecognitionResult = document.getElementById("glassRecognitionResult");
+    genderEstimationResult = document.getElementById("genderEstimationResult");
     initWebsocket();
 });
