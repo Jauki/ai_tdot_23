@@ -41,7 +41,7 @@ async def stream_images():
         await client.publish(payload, 'video_stream')
 
         # sleep
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.05)
 
 
 async def main():

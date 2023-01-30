@@ -12,16 +12,14 @@ class WebSocketClient:
         self.__url = f'ws://{host}:{port}'
         self.__logger: logging.Logger = logging.getLogger(self.__class__.__name__)
         self.__server: ws.WebSocketClientProtocol | None = None
-        self.on_message: Callable[[ws.WebSocketClientProtocol, str, dict[str, any]], None] | None = None
+        self.on_message: Callable[[ws.WebSocketClientProtocol, str, dict[str, any]], Coroutine] | None = None
 
     async def connect(self) -> Coroutine:
-        async with ws.connect(self.__url) as server:
-            self.__logger.debug('successfully established a connection')
-            self.__server = server
-            return self.__handle_messages()
+        self.__server: ws.WebSocketClientProtocol = await ws.connect(self.__url)
+        self.__logger.debug('successfully established a connection')
+        return self.__handle_messages()
 
     async def __handle_messages(self):
-        self.__logger.debug(f'type: {type(self.__server)}')
         while True:
             message = await self.__server.recv()
             message = json.loads(message)
@@ -29,7 +27,7 @@ class WebSocketClient:
             payload: dict[str, any] = message['payload']
 
             if self.on_message:
-                self.on_message(self.__server, channel, payload)
+                await self.on_message(self.__server, channel, payload)
 
     async def subscribe(self, channel: str):
         message: dict[str, any] = {

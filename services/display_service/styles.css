@@ -1,0 +1,13 @@
+body {
+    color: white;
+    background-color: black;
+}
+
+.resultPanel {
+    font-size: 30px;
+    font-family: 'Consolas', serif;
+}
+
+.resultValue {
+    color: #00ff00;
+}
