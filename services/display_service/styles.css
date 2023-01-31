@@ -5,7 +5,7 @@ body {
 
 .resultPanel {
     font-size: 30px;
-    font-family: 'Consolas', serif;
+    font-family: 'JetBrains Mono', arial, sans-serif;
 }
 
 .resultValue {
